@@ -16,8 +16,16 @@
                 <input type="text" id="createUrl" placeholder="Enter long URL" required>
                 <button type="submit">Shorten</button>
             </form>
+        
             <div class="response" id="createResponse"></div>
+        
+            <!-- Short URL display and copy -->
+            <div id="shortUrlBox" style="display:none; margin-top:10px;">
+                <input type="text" id="shortUrlInput" readonly style="width: 60%; padding: 8px;">
+                <button onclick="copyToClipboard()">Copy</button>
+            </div>
         </section>
+
 
         <!-- Retrieve -->
         <section>
@@ -81,8 +89,19 @@
             const code = document.getElementById("redirectCode").value;
             window.location.href = `/r/${code}`;
         });
-        
+
         // Create
+        function copyToClipboard() {
+            const input = document.getElementById("shortUrlInput");
+            input.select();
+            input.setSelectionRange(0, 99999); // for mobile
+
+            navigator.clipboard.writeText(input.value)
+                .then(() => alert("Short URL copied to clipboard!"))
+                .catch(() => alert("Failed to copy URL."));
+        }
+
+        // Modified Create handler to show short URL input + copy button
         document.getElementById("createForm").addEventListener("submit", async (e) => {
             e.preventDefault();
             const url = document.getElementById("createUrl").value;
@@ -92,8 +111,18 @@
                 body: JSON.stringify({ url })
             });
             const data = await res.json();
+
             document.getElementById("createResponse").innerText = JSON.stringify(data, null, 2);
-        });
+
+           if (data.success && data.data && data.data.short_url) {
+            const inputBox = document.getElementById("shortUrlBox");
+            const input = document.getElementById("shortUrlInput");
+            input.value = data.data.short_url;
+            inputBox.style.display = "block";
+            }
+
+            });
+
 
         // Retrieve
         document.getElementById("retrieveForm").addEventListener("submit", async (e) => {
