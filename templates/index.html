@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>URL Shortener</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 URL Shortener</h1>
+
+        <!-- Create -->
+        <section>
+            <h2>Create Short URL</h2>
+            <form id="createForm">
+                <input type="text" id="createUrl" placeholder="Enter long URL" required>
+                <button type="submit">Shorten</button>
+            </form>
+        
+            <div class="response" id="createResponse"></div>
+        
+            <!-- Short URL display and copy -->
+            <div id="shortUrlBox" style="display:none; margin-top:10px;">
+                <input type="text" id="shortUrlInput" readonly style="width: 60%; padding: 8px;">
+                <button onclick="copyToClipboard()">Copy</button>
+            </div>
+        </section>
+
+
+        <!-- Retrieve -->
+        <section>
+            <h2>Retrieve Original URL</h2>
+            <form id="retrieveForm">
+                <input type="text" id="retrieveCode" placeholder="Enter short code" required>
+                <button type="submit">Retrieve</button>
+            </form>
+            <div class="response" id="retrieveResponse"></div>
+        </section>
+
+        <!-- Update -->
+        <section>
+            <h2>Update URL</h2>
+            <form id="updateForm">
+                <input type="text" id="updateCode" placeholder="Enter short code" required>
+                <input type="text" id="newUrl" placeholder="Enter new long URL" required>
+                <button type="submit">Update</button>
+            </form>
+            <div class="response" id="updateResponse"></div>
+        </section>
+
+        <!-- Delete -->
+        <section>
+            <h2>Delete Short URL</h2>
+            <form id="deleteForm">
+                <input type="text" id="deleteCode" placeholder="Enter short code" required>
+                <button type="submit">Delete</button>
+            </form>
+            <div class="response" id="deleteResponse"></div>
+        </section>
+
+        <!-- Stats -->
+        <section>
+            <h2>Get URL Stats</h2>
+            <form id="statsForm">
+                <input type="text" id="statsCode" placeholder="Enter short code" required>
+                <button type="submit">Get Stats</button>
+            </form>
+            <div class="response" id="statsResponse"></div>
+        </section>
+
+        <!-- Redirect -->
+        <section>
+            <h2>Test Redirect</h2>
+            <form id="redirectForm">
+                <input type="text" id="redirectCode" placeholder="Enter short code" required>
+                <button type="submit">Go</button>
+            </form>
+        </section>
+    </div>
+
+        
+
+
+    <script>
+
+        // Redirect
+        document.getElementById("redirectForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const code = document.getElementById("redirectCode").value;
+            window.location.href = `/r/${code}`;
+        });
+
+        // Create
+        function copyToClipboard() {
+            const input = document.getElementById("shortUrlInput");
+            input.select();
+            input.setSelectionRange(0, 99999); // for mobile
+
+            navigator.clipboard.writeText(input.value)
+                .then(() => alert("Short URL copied to clipboard!"))
+                .catch(() => alert("Failed to copy URL."));
+        }
+
+        // Modified Create handler to show short URL input + copy button
+        document.getElementById("createForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const url = document.getElementById("createUrl").value;
+            const res = await fetch('/shorten', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url })
+            });
+            const data = await res.json();
+
+            document.getElementById("createResponse").innerText = JSON.stringify(data, null, 2);
+
+           if (data.success && data.data && data.data.short_url) {
+            const inputBox = document.getElementById("shortUrlBox");
+            const input = document.getElementById("shortUrlInput");
+            input.value = data.data.short_url;
+            inputBox.style.display = "block";
+            }
+
+            });
+
+
+        // Retrieve
+        document.getElementById("retrieveForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const code = document.getElementById("retrieveCode").value;
+            const res = await fetch(`/shorten/${code}`);
+            const data = await res.json();
+            document.getElementById("retrieveResponse").innerText = JSON.stringify(data, null, 2);
+        });
+
+        // Update
+        document.getElementById("updateForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const code = document.getElementById("updateCode").value;
+            const newUrl = document.getElementById("newUrl").value;
+            const res = await fetch(`/shorten/${code}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: newUrl })
+            });
+            const data = await res.json();
+            document.getElementById("updateResponse").innerText = JSON.stringify(data, null, 2);
+        });
+
+        // Delete
+        document.getElementById("deleteForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const code = document.getElementById("deleteCode").value;
+            const res = await fetch(`/shorten/${code}`, { method: 'DELETE' });
+            document.getElementById("deleteResponse").innerText =
+                res.status === 204 ? "Deleted successfully!" : "Not found!";
+        });
+
+        // Stats
+        document.getElementById("statsForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const code = document.getElementById("statsCode").value;
+            const res = await fetch(`/shorten/${code}/stats`);
+            const data = await res.json();
+            document.getElementById("statsResponse").innerText = JSON.stringify(data, null, 2);
+        });
+    </script>
+</body>
+</html>
