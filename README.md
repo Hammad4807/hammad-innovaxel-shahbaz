@@ -1,12 +1,12 @@
 1.
-   # 🔗 Innovaxel URL Shortener
+   #  Innovaxel URL Shortener
 
 A simple Flask-based URL shortening service built with MongoDB.  
 This app allows users to create, update, rretrive, delete, and view statistics of shortened URLs with a web UI.
 
 ---
 
-## 🚀 Features
+##  Features
 
 - Shorten any URL into a custom code
 - Track number of times the short URL was accessed
@@ -16,7 +16,7 @@ This app allows users to create, update, rretrive, delete, and view statistics o
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 - **Backend:** Flask (Python)
 - **Database:** MongoDB
@@ -25,7 +25,7 @@ This app allows users to create, update, rretrive, delete, and view statistics o
 
 ---
 
-## ⚙️ Setup Instructions
+##  Setup Instructions
 
 ~bash
 1. **Clone the repo:**
